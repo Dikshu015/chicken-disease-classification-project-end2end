@@ -9,6 +9,7 @@ from box import ConfigBox
 from pathlib import Path
 from typing import Any
 import base64
+import tensorflow as tf
 
 
 @ensure_annotations
@@ -139,3 +140,27 @@ def decodeImage(imgString, filename):
 def encodeImageIntoBase64(croppedImagePath):
     with open(croppedImagePath,"rb") as f:
         return base64.b64encode(f.read())
+    
+
+def build_model(input_shape, num_classes, learning_rate):
+    base_model = tf.keras.applications.ConvNeXtTiny(
+        input_shape=input_shape,
+        weights=None,
+        include_top=False
+    )
+
+    for layer in base_model.layers:
+        layer.trainable = False
+
+    x = tf.keras.layers.Flatten()(base_model.output)
+    outputs = tf.keras.layers.Dense(num_classes, activation="softmax")(x)
+
+    model = tf.keras.Model(inputs=base_model.input, outputs=outputs)
+
+    model.compile(
+        optimizer=tf.keras.optimizers.SGD(learning_rate=learning_rate),
+        loss="categorical_crossentropy",
+        metrics=["accuracy"]
+    )
+
+    return model
