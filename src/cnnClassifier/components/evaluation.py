@@ -2,7 +2,7 @@ from urllib.parse import urlparse
 import tensorflow as tf
 from cnnClassifier.utils.common import *
 from cnnClassifier.entity.config_entity import EvaluationConfig
-
+from cnnClassifier.utils.common import build_model
 
 
 class Evaluation:
@@ -36,15 +36,28 @@ class Evaluation:
 
     
     @staticmethod
-    def load_model(path: Path) -> tf.keras.Model:
-        return tf.keras.models.load_model(path)
+    def load_model(path: Path, config: EvaluationConfig):
+
+        model = build_model(
+            input_shape=tuple(config.params_image_size),
+            num_classes=config.all_params["CLASSES"],
+            learning_rate=config.all_params["LEARNING_RATE"]
+        )
+
+        model.load_weights(str(path))
+
+        return model
     
 
     def evaluation(self):
-        self.model = self.load_model(self.config.path_of_model)
-        self._valid_generator()
-        self.score = self.model.evaluate(self.valid_generator)
+        self.model = self.load_model(
+            self.config.path_of_model,
+            self.config
+        )
 
+        self._valid_generator()
+
+        self.score = self.model.evaluate(self.valid_generator)
     
     def save_score(self):
         scores = {"loss": self.score[0], "accuracy": self.score[1]}

@@ -89,24 +89,34 @@ class Training:
 
     @staticmethod
     def save_model(path: Path, model: tf.keras.Model):
+        print(path)
         model.save_weights(str(path))
+        
     
     def train(self, callback_list: list):
         self.steps_per_epochs = self.train_generator.samples // self.train_generator.batch_size
         self.validation_steps = self.valid_generator.samples // self.valid_generator.batch_size
 
+        print("Starting training...")
+
         self.model.fit(
             self.train_generator,
-            epochs = self.config.params_epochs,
-            steps_per_epoch = self.steps_per_epochs,
+            epochs=self.config.params_epochs,
+            steps_per_epoch=self.steps_per_epochs,
             validation_steps=self.validation_steps,
-            validation_data = self.valid_generator,
-            callbacks = callback_list
+            validation_data=self.valid_generator,
+            callbacks=callback_list
         )
-        
+
+        print("Training finished.")
+
+        print("Saving weights to:", self.config.training_model_path)
+
         self.save_model(
             path=self.config.training_model_path,
-            model = self.model
+            model=self.model
         )
+
+        print("Weights saved.")
 
 

@@ -23,3 +23,18 @@ class ModelTrainingPipeline:
         training.train(
             callback_list=callback_list
         )
+
+if __name__ == "__main__":
+    try:
+        logger.info("*******************")
+        logger.info(">>>>>> stage Training started <<<<<<")
+
+        obj = ModelTrainingPipeline()
+        obj.main()
+
+        logger.info(">>>>>> stage Training completed <<<<<<")
+        logger.info("*******************")
+
+    except Exception as e:
+        logger.exception(e)
+        raise e
